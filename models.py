@@ -9,11 +9,16 @@ class BaseModel(peewee.Model):
         database = db
 
 
+class Tag(BaseModel):
+    name = peewee.CharField()
+
+
 class Product(BaseModel):
     name = peewee.CharField()
     description = peewee.TextField()
     price = peewee.FloatField()
     quantity = peewee.IntegerField()
+    tags = peewee.ManyToManyField(Tag)
 
 
 class User(BaseModel):
@@ -27,3 +32,7 @@ class Transaction():
     user_id = peewee.ForeignKeyField(User)
     product_id = peewee.ForeignKeyField(Product)
     quantity = peewee.IntegerField()
+
+
+ProductTag = Product.tags.get_through_model()
+UserProduct = User.products_owned.get_through_model()
