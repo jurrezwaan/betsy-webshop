@@ -1,7 +1,7 @@
 # Models go here
 import peewee
 
-db = peewee.SqliteDatabase("database.db")
+db = peewee.SqliteDatabase("database.db", pragmas={'foreign_keys': 1})
 
 
 class BaseModel(peewee.Model):

@@ -5,7 +5,7 @@ from models import *
 
 
 def search(term):
-    return Product.select().where(term.in_(Product.name))
+    return Product.select().where(Product.name.like(term))
 
 
 def list_user_products(user_id):
@@ -15,9 +15,9 @@ def list_user_products(user_id):
 def list_products_per_tag(tag_id):
     return (Product
             .select(Product, ProductTag, Tag)
-            .join(ProductTag, on=(Product.id == ProductTag.product_id))
-            .join(Tag, on=(ProductTag.tag_id == Tag.id)
-                  .where(tag_id == Tag.id)))
+            .join(ProductTag)
+            .join(Tag)
+            .where(tag_id == Tag.id))
 
 
 def add_product_to_catalog(user_id, product):
