@@ -1,7 +1,7 @@
 # Models go here
 import peewee
 
-db = peewee.SqliteDatabase("database.db", pragmas={'foreign_keys': 1})
+db = peewee.SqliteDatabase("database.db")
 
 
 class BaseModel(peewee.Model):
@@ -9,30 +9,65 @@ class BaseModel(peewee.Model):
         database = db
 
 
+class Product(BaseModel):
+    name = peewee.CharField(unique=True)
+    description = peewee.TextField()
+    price = peewee.DecimalField(decimal_places=2, auto_round=True)
+    quantity = peewee.IntegerField()
+
+
 class Tag(BaseModel):
     name = peewee.CharField()
-
-
-class Product(BaseModel):
-    name = peewee.CharField()
-    description = peewee.TextField()
-    price = peewee.FloatField()
-    quantity = peewee.IntegerField()
-    tags = peewee.ManyToManyField(Tag)
+    product = peewee.ForeignKeyField(Product, backref='tags')
 
 
 class User(BaseModel):
-    name = peewee.CharField()
+    name = peewee.CharField(unique=True)
     address = peewee.TextField()
     billing_info = peewee.TextField()
-    products_owned = peewee.ManyToManyField(Product)
+    products_owned = peewee.ManyToManyField(Product, backref='users')
 
 
 class Transaction():
-    user_id = peewee.ForeignKeyField(User)
-    product_id = peewee.ForeignKeyField(Product)
+    user_id = peewee.ForeignKeyField(User, backref='transactions')
+    product_id = peewee.ForeignKeyField(Product, backref='transactions')
     quantity = peewee.IntegerField()
 
 
-ProductTag = Product.tags.get_through_model()
 UserProduct = User.products_owned.get_through_model()
+
+
+def populate_test_data():
+    db.create_tables([Product, Tag, User, Transaction, UserProduct])
+
+    product_data = [
+        ('glockenspiel', '''A glockenspiel is a metallophone,
+        a musical instrument from the group of idiophones,
+        consisting of two rows of metal bars (keys), usually without a resonator.''',
+         10.50, 1, ('instrument', 'germany', 'metal')),
+        ('necklace', '''Including velvet storage bag,
+        a cleaning cloth and a care card with maintenance instructions.''',
+         25, 1, ('jewellery', 'silver', 'french')),
+        ('clogs', '''Clogs are a type of footwear made in part or completely from wood.
+        Used worldwide, their forms can vary by culture,
+        but often remained unchanged for centuries within a culture.''', 45, 1, ('shoes', 'wood', 'dutch'))
+    ]
+
+    user_data = [
+        ('claus', 'clausstrasse 1', 'DB10203040', 'glockenspiel')
+        ('emma', 'rue de emma 1', 'FB20103050', 'necklace')
+        ('bert', 'bertplantsoen 1' 'NB30501020', 'clogs')
+    ]
+
+    for name, description, price, quantity, tags in product_data:
+        product = Product.create(
+            name=name, description=description, price=price, quantity=quantity)
+        for tag in tags:
+            Tag.create(name=tag, product=product)
+
+    for name, address, billing_info, products_owned in user_data:
+
+
+populate_test_data()
+
+# bedenk eerst goed welke tables nodig zijn. quantity bij product class en geen quantity van aangekochte artikelen bij houden
