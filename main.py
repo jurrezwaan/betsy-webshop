@@ -42,6 +42,8 @@ def update_stock(product_id, new_quantity):
      .execute())
     print('{}''s new stock : {}'.format(product_name, new_quantity))
 
+# lukt niet om row toe te voegen aan Transaction. Hij herkent de fields niet.
+
 
 def purchase_product(product_id, buyer_id, quantity):
     product = Product.get(Product.id == product_id)
