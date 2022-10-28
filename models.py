@@ -12,7 +12,7 @@ class Product(BaseModel):
     name = peewee.CharField(unique=True)
     description = peewee.TextField()
     price = peewee.DecimalField(decimal_places=2, auto_round=True)
-    quantity = peewee.IntegerField()
+    quantity = peewee.IntegerField(null=True)
 
 
 class Tag(BaseModel):
@@ -28,8 +28,8 @@ class User(BaseModel):
 
 
 class Transaction(BaseModel):
-    user_id = peewee.ForeignKeyField(User)
-    product_id = peewee.ForeignKeyField(Product)
+    user_id = peewee.ForeignKeyField(User, backref='transactions')
+    product_id = peewee.ForeignKeyField(Product, backref='transactions')
     quantity = peewee.IntegerField()
 
 
